@@ -1,0 +1,155 @@
+<html>
+    <head>	
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	  <title>Course material sharer </title>
+	  <script type="text/javascript">
+
+function uploadFile(){	   
+	var urlstr = "/materials";		 
+	var fileObj = document.getElementById("upload").files[0];            
+	var fileName=document.getElementById("upload").value;
+    var fileDesc=document.getElementById("fileDesc").value;   	
+	var fileCat=document.getElementById("fileCat").value; 		 
+       
+    if (validate(fileName,fileDesc)){      	     
+	     var form = new FormData();
+	     form.append("fileDesc", fileDesc);  
+		 form.append("fileCat", fileCat); 
+	     form.append("fileName", document.getElementById("upload").value); 	     
+	     form.append("upload", fileObj);   
+	     
+	     xmlhttp =  new XMLHttpRequest();		 
+		 xmlhttp.open("post", urlstr, true);
+		 xmlhttp.setRequestHeader("Content-type", "multipart/form-data");
+         xmlhttp.onreadystatechange = function(){
+    		if(xmlhttp.readyState === 4){
+       			if(xmlhttp.status === 200){
+					var json = JSON.parse(xmlhttp.responseText);					
+					var ihtm = getOneLi(json);				
+					document.getElementById("listDiv").innerHTML += ihtm;
+					document.getElementById("upload").value =null;
+                    fileDesc=document.getElementById("fileDesc").value=null; 
+        		}else{
+            		//alert('Error: '+xmlhttp.status); 
+					alert('Error: '+xmlhttp.responseText); // An error occurred during the request
+       			}
+             }  
+		  }
+         xmlhttp.send(form);
+	}
+}
+
+function validate(fileName, fileDesc) {
+	if (fileName == null || fileName =="") {
+        alert("Please select a file to upload.");
+        return false;
+  	}   
+    if (fileDesc == null || fileDesc =="") {
+        alert("Please input the file description.");
+        return false;
+  	} 
+	return true;
+}
+
+function delItem(mid, fileName) {	
+	if(confirm('Do you want to delete file '+ fileName +' ?')){
+		var urlstr = '/materials'+'/'+mid; 
+		xmlhttp =  new XMLHttpRequest();		 
+		xmlhttp.open("delete", urlstr, true);
+		xmlhttp.send();
+		xmlhttp.onreadystatechange = function(){
+			if(xmlhttp.readyState === 4){
+				if(xmlhttp.status === 200){
+					//alert('get lIst: '+xmlhttp.responseText); 	
+					showItems(xmlhttp.responseText,null)
+				} else {
+					alert('Error: '+xmlhttp.responseText); 	
+				}		
+			}
+		}
+	};
+}
+
+function listAll(cat){
+    var urlstr = "/materials"; 
+	if (cat!=null && cat !='') {
+		urlstr = urlstr+"/"+cat;  
+	}
+	xmlhttp =  new XMLHttpRequest();		 
+　  xmlhttp.open("get", urlstr, true);
+    xmlhttp.onreadystatechange = function(){
+		if(xmlhttp.readyState === 4){
+       		if(xmlhttp.status === 200){
+				var alljson = JSON.parse(xmlhttp.responseText); 
+				var ihtm ='<ul>';	
+				for(var i=0;i<alljson.length;i++){
+					ihtm += getOneLi(alljson[i]);
+				}
+				var titlelst='<u><a onclick="listAll(null)">All</a></u>';
+				if (cat!=null && cat !='') {
+					titlelst += '<u>-->'+cat+'</ul>';					
+				}					
+				document.getElementById("listDiv").innerHTML=ihtm+'</ul>';
+				document.getElementById("catDiv").innerHTML=titlelst;
+			}else{
+				//alert('Error: '+xmlhttp.status); 
+				alert('Error: '+xmlhttp.responseText); // An error occurred during the request
+			}
+		}	
+	};
+	xmlhttp.send(null);
+} 
+
+function showItems(jsontxt,cat) {
+	var alljson = JSON.parse(jsontxt); 
+	var ihtm ='<ul>';	
+	for(var i=0;i<alljson.length;i++){
+		ihtm += getOneLi(alljson[i]);
+	}
+	var titlelst='<u><a onclick="listAll(null)">All</a></u>';
+	if (cat!=null && cat !='') {
+		titlelst += '<u>-->'+cat+'</ul>';					
+	}			
+	document.getElementById("listDiv").innerHTML=ihtm+'</ul>';
+	document.getElementById("catDiv").innerHTML=titlelst;
+}
+
+
+function getOneLi(json) {
+	var fpath= '/files/'+json["fileId"]+'/'+json["fileName"];		
+	var str='<li><u><a onclick="listAll(\''+json["fileCat"]+'\')">'+ 
+		json["fileCat"]+'</a></u> :&nbsp; <a href="'+fpath+'">'+
+		json["fileDesc"]+ '&nbsp;('+json["fileName"]+')</a> &nbsp;'+
+		'<a onclick="delItem(\''+json["_id"]+'\',\''+json["fileName"]+
+		'\')">[delete]</a></li>';	
+	return str;					
+}
+	  
+</script>
+</head>  
+	
+<body onload="listAll(null)">
+	<h2>Training Course Material Sharer v.0.0.5 </h2></p>
+	<h3><div id="catDiv">
+	   <u><a onclick="listAll(null)">All </a></u>
+	</div></h3>	
+	<div  id="listDiv">
+		
+	</div>
+<p> ==============================================
+<div id="upLoadDiv">
+<fieldset><legend>Select a file to upload:</legend>
+	 <p>File Cat:  <select size="1" id="fileCat">
+		<option selected>Slide</option>
+		<option>Book</option>
+		<option>Program</option>
+		<option>Tool</option>
+	</select> </p>
+     <p>File Desc. : <input type="text" id="fileDesc" size="40"> </p> 
+	 <p>Select File: <input type="file" id="upload"></p>	
+	 <p><input type="button" value="Upload File" onclick="uploadFile()" /></p>	 
+</fieldset>	 
+</div>
+</body>
+</html>	
+	

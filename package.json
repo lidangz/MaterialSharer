@@ -1,0 +1,39 @@
+{
+  "name": "MyCourse",
+  "version": "1.0.0",
+  "description": "Course material share app for OpenShift",
+  "keywords": [
+    "OpenShift",
+    "Node.js",
+    "application",
+    "openshift"
+  ],
+  "author": {
+    "name": "Dan Li",
+    "email": "ramr@example.org",
+    "url": "http://www.openshift.com/"
+  },
+  "homepage": "http://www.openshift.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openshift/origin-server"
+  },
+  "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
+  },
+  "dependencies": {
+    "express": "~3.4.4",
+	"formidable": "~1.0.15",
+	"mime": "~1.2.11",
+	"mongodb": "~1.4.7",
+    "http-client": "~1.0.0"
+  },
+  "devDependencies": {},
+  "bundleDependencies": [],
+  "private": true,
+  "scripts": {
+	"start": "supervisor server.js"
+  },
+  "main": "server.js"
+}
